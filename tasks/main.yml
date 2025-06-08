@@ -1,4 +1,24 @@
 ---
+
+- set_fact:
+    network_interfaces_number: "{{ network_interfaces | length | int }}"
+
+- set_fact:
+    network_dummies_number: "{{ network_dummies | length | int }}"
+
+- set_fact:
+    network_interfaces_disabled_number: "{{ network_interfaces_disabled | length | int }}"
+
+- name: debug net interfaces
+  debug:
+    msg: "{{ network_dummies_number }}"
+
+- name: Install network packages
+  ansible.builtin.apt:
+    pkg: "{{ debian_network_packages }}"
+    state: present
+    update_cache: yes
+
 - name: Ensure dummy module is on startup
   lineinfile: >
      regexp="^dummy"
@@ -12,7 +32,7 @@
 
 - name: Ensure dummy module is unloaded
   modprobe: name="dummy" state=absent
-  when: network_dummies_number != 0 and dummymodule | changed
+  when: network_dummies_number == 0 
   tags: [configuration,network]
 
 - name: Ensure dummy module is loaded

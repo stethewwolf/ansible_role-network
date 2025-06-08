@@ -1,3 +1,7 @@
 ---
 
+debian_network_packages:
+  - net-tools
+  - bridge-utils
+  - resolvconf
 

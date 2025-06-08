@@ -6,13 +6,13 @@
 - name: Ensure interface are configured
   template: src=Debian/interface_entry.j2 dest=/etc/network/interfaces.d/if-{{item.name}}
   notify: restart networking Debian
-  with_items: network_interfaces
+  with_items: "{{ network_interfaces }}"
   tags: [configuration,network]
 
 - name: Ensure dummy are configured
   template: src=Debian/dummy.j2 dest=/etc/network/interfaces.d/dummy
   notify: restart networking Debian
-  when: network_dummies_number > 0
+  when: ( network_dummies | length ) > 0
   tags: [configuration,network]
 
 - name: Ensure /etc/network/interface are configured
@@ -25,7 +25,7 @@
   register: ifconfig_result_down
   changed_when: "'UP ' in ifconfig_result_down.stdout"
   with_items: network_interfaces_disabled
-  always_run: yes
+  when: ( network_interfaces_disabled | length ) > 0
   tags: [configuration,network]
 
 - name: Disabled UP interfaces in disabled list
@@ -44,12 +44,12 @@
   shell: ifconfig {{item.name}}
   register: ifconfig_result_up
   changed_when: "'UP ' not in ifconfig_result_up.stdout"
-  with_items: network_interfaces
-  always_run: yes
+  with_items: "{{ network_interfaces }}"
+  #always_run: yes
   tags: [configuration,network]
 
 - name: Ensure all enable interfaces are UP
   shell: ifconfig {{item.item.name}} up
   when: ifconfig_result_up.changed
-  with_items: ifconfig_result_up.results
+  with_items: "{{ ifconfig_result_up.results }}"
   tags: [configuration,network]

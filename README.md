@@ -29,9 +29,9 @@ network_interfaces:
 
 # Create 3 dummy interface and assignate ip
 network_dummies:
-   - { address: 192.168.130.2, network: 255.255.255.255 }
-   - { address: 192.168.130.3, network: 255.255.255.255 }
-   - { address: 192.168.130.4, network: 255.255.255.255 }
+   - { name: "dummy0", address: 192.168.130.2, network: 255.255.255.255 }
+   - { name: "dummy1", address: 192.168.130.3, network: 255.255.255.255 }
+   - { name: "dummy2", address: 192.168.130.4, network: 255.255.255.255 }
 
 # Disable interface
 network_interfaces_disabled: ['eth3','eth4']

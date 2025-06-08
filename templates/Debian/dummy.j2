@@ -1,9 +1,7 @@
 # {{ ansible_managed }}
 
-{% for dummy in network_dummies %}
-auto dummy{{ loop.index0 }}
-iface dummy{{ loop.index0 }} inet static
+auto {{ item.name }}
+iface {{ item.name }} inet static
         address {{dummy.address}}
         netmask {{dummy.netmask}}
 
-{% endfor %}
