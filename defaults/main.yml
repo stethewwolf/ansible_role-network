@@ -2,5 +2,6 @@
 network_interfaces:          []
 network_dummies:             []
 network_interfaces_disabled: []
+network_bridges: []
 
                                                                             

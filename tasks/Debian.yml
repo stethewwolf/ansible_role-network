@@ -9,6 +9,12 @@
   with_items: "{{ network_interfaces }}"
   tags: [configuration,network]
 
+- name: Ensure bridge are configured
+  template: src=Debian/bridge_entry.j2 dest=/etc/network/interfaces.d/if-{{item.name}}
+  notify: restart networking Debian
+  with_items: "{{ network_bridges }}"
+  tags: [configuration,network]
+
 - name: Ensure dummy are configured
   template: src=Debian/dummy.j2 dest=/etc/network/interfaces.d/dummy
   notify: restart networking Debian
@@ -34,6 +40,20 @@
   with_items: ifconfig_result_down.results
   tags: [configuration,network]
 
+# - name: Check manual interfaces
+#   shell: ifconfig {{item}}
+#   register: ifconfig_result_down_manual
+#   changed_when: "'UP ' in ifconfig_result_down.stdout"
+#   with_items: network_interfaces
+#   when: ( network_interfaces | length ) > 0 and item['type'] == "manual"
+#   tags: [configuration,network]
+# 
+# - name: Disabled UP interfaces marked as manual
+#   shell: ifconfig {{item.item}} down
+#   when: ifconfig_result_down_manual.changed
+#   with_items: ifconfig_result_down_manual.results
+#   tags: [configuration,network]
+
 - name: Ensure disabled interface are not configured
   file: path=/etc/network/interfaces.d/if-{{item}} state=absent
   notify: restart networking Debian
@@ -45,6 +65,7 @@
   register: ifconfig_result_up
   changed_when: "'UP ' not in ifconfig_result_up.stdout"
   with_items: "{{ network_interfaces }}"
+  when: item.type != "manual"
   #always_run: yes
   tags: [configuration,network]
 
@@ -53,3 +74,21 @@
   when: ifconfig_result_up.changed
   with_items: "{{ ifconfig_result_up.results }}"
   tags: [configuration,network]
+  ignore_errors: True
+
+- name: Check all bridges are UP
+  shell: ifconfig {{item.name}}
+  register: ifconfig_result_up_br
+  changed_when: "'UP' not in ifconfig_result_up.stdout"
+  with_items: "{{ network_bridges }}"
+  when: item.type != "manual"
+  #always_run: yes
+  tags: [configuration,network]
+  ignore_errors: True
+
+- name: Ensure all enable bridges are UP
+  shell: ifconfig {{item.item.name}} up
+  when: ifconfig_result_up_br.changed
+  with_items: "{{ ifconfig_result_up.results }}"
+  tags: [configuration,network]
+  ignore_errors: True

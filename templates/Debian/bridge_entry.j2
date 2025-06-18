@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+auto {{ item.name }}
+iface {{ item.name }} inet static
+{% if item.address is defined %}    address {{item.address}}{% endif %}
+
+{% if item.netmask is defined %}    netmask {{item.netmask}}{% endif %}
+
+{% if item.gateway is defined %}    gateway {{item.gateway}}{% endif %}
+
+{% if item.bridge_ports is defined %}    bridge_ports {{item.bridge_ports}}{% endif %}
+
+{% if item.dns is defined %}    dns-nameservers : {% for dns in item.dns %}{{dns}} {% endfor %}{% endif %}
+
+#  bridge_stp off          # disable Spanning Tree Protocol
+#  bridge_waitport 0       # no delay before a port becomes available
+#  bridge_fd 0             # no forwarding delay
+#  bridge_ports none       # if you do not want to bind to any ports
+#  bridge_ports regex eth* # use a regular expression to define ports
+
