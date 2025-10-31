@@ -68,27 +68,34 @@
   when: item.type != "manual"
   #always_run: yes
   tags: [configuration,network]
+  ignore_errors: True
 
 - name: Ensure all enable interfaces are UP
   shell: ifconfig {{item.item.name}} up
   when: ifconfig_result_up.changed
   with_items: "{{ ifconfig_result_up.results }}"
   tags: [configuration,network]
-  ignore_errors: True
+  #ignore_errors: True
 
 - name: Check all bridges are UP
   shell: ifconfig {{item.name}}
   register: ifconfig_result_up_br
-  changed_when: "'UP' not in ifconfig_result_up.stdout"
+  changed_when: "'UP' not in ifconfig_result_up_br.stdout"
   with_items: "{{ network_bridges }}"
-  when: item.type != "manual"
   #always_run: yes
   tags: [configuration,network]
   ignore_errors: True
 
-- name: Ensure all enable bridges are UP
+- name: create bridges without interfaces
+  shell: brctl addbr {{item.item.name}}
+  when: ifconfig_result_up_br.changed and (item.item.bridge_ports is not defined or item.item.bridge_ports | length < 1 )
+  with_items: "{{ ifconfig_result_up_br.results }}" 
+  tags: [configuration,network]
+  ignore_errors: True
+
+- name: Ensure all bridges are UP
   shell: ifconfig {{item.item.name}} up
   when: ifconfig_result_up_br.changed
-  with_items: "{{ ifconfig_result_up.results }}"
+  with_items: "{{ ifconfig_result_up_br.results }}"
   tags: [configuration,network]
   ignore_errors: True
