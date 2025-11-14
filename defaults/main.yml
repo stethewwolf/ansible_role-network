@@ -4,4 +4,5 @@ network_dummies:             []
 network_interfaces_disabled: []
 network_bridges: []
 
-                                                                            
+network_hosts_entries: []
+network_install_packages: true
